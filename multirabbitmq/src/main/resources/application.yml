@@ -1,0 +1,18 @@
+spring:
+    rabbitmq:
+        host: localhost
+        port: 5672
+        username: guest
+        password: guest
+    multirabbitmq:
+        connections:
+            broker2:
+                host: localhost
+                port: 5673
+                username: guest
+                password: guest
+            broker3:
+                host: localhost
+                port: 5674
+                username: guest
+                password: guest
