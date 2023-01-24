@@ -1,5 +1,7 @@
 package com.wandercosta.rabbitmq2019;
 
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.annotation.*;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +11,8 @@ import org.springframework.boot.autoconfigure.amqp.ConnectionFactoryContextWrapp
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.nio.charset.StandardCharsets;
 
 @EnableRabbit
 @RestController
@@ -27,9 +31,15 @@ class ApplicationWithMultiRabbitMQ {
 
     @Scheduled(fixedRate = 1000L)
     void publish() {
+        final MessageProperties properties = new MessageProperties();
+        properties.setHeader("one-header", "some value");
+        final Message message = new Message("data".getBytes(StandardCharsets.UTF_8), properties);
+
+        rabbitTemplate.convertAndSend("ex1", "rt1", message);
+
         rabbitTemplate.convertAndSend("ex1", "rt1", "data");
         contextWrapper.run("broker2",
-                () -> rabbitTemplate.convertAndSend("ex2", "rt2", "data"));
+                () -> rabbitTemplate.convertAndSend("ex2", "rt2",    "data"));
         contextWrapper.run("broker3",
                 () -> rabbitTemplate.convertAndSend("ex3", "rt3", "data"));
     }
